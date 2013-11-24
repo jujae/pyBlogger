@@ -4,8 +4,9 @@ pyBlogger
 A python script for my github blog
 
 usage: 
-    blogger.py [-h] (-n 'new_post_title' | -g | -u)
-
+```shell
+blogger.py [-h] (-n 'new_post_title' | -g | -u)
+```
 
 optional arguments:
 
