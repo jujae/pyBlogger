@@ -51,6 +51,9 @@ def generate(markdown_dir,html_dir,page_dir):
     read the markdown directory, html directory and page directory.
     convert all the markdown file to html
     '''
+    md_list=os.listdir(markdown_dir)
+    for md_file in md_list:
+        pass
     #pandoc_cmd=''
     #pubprocess.call()
     print(markdown_dir)
