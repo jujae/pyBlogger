@@ -17,3 +17,6 @@ optional arguments:
   -g, --generate
 
   -u, --update
+
+Currently using html files and css stylesheet
+from [Brian Buccola](https://github.com/brianbuccola/brianbuccola.github.io)
