@@ -4,7 +4,11 @@ A python script for generating my personal static blogging site
 author: rootuser
 e-mail: jujaezen@gmail.com
 '''
-import os, argparse,subprocess,string,re
+import os 
+import argparse
+import subprocess
+import string
+import re
 from datetime import date
 
 def get_dir():
@@ -12,9 +16,17 @@ def get_dir():
     site_folder='blogtest'
     markdown=os.path.join(home,site_folder,'blog','markdown')
     html=os.path.join(home,site_folder,'blog','html')
-    page=os.path.join(home,site_folder,'page')
+    page=os.path.join(home,site_folder)
     return {'markdown':markdown,'html':html,'page':page}
-    
+
+def get_meta(fpathname):
+    meta_info={}
+    with open(fpathname) as metafile:
+        meta_data=[metafile.next() for x in xrange(4)]
+    meta_info['title']=meta_data[1][7:-1]
+    meta_info['date']=meta_data[3].split(':')[1].strip()
+    return meta_info   
+
 class NewPost(argparse.Action):
     def __call__(self,parser,namespace,values,option_string=None):
         new_post(values,get_dir()['markdown'])
@@ -27,7 +39,9 @@ class GenerateSites(argparse.Action):
 
 class UpdateSites(argparse.Action):
     def __call__(self,parser,namespace,values,option_string=None):
-        update(get_dir()['html'],get_dir()['page'])
+        update(get_dir()['markdown'],
+               get_dir()['html'],
+               get_dir()['page'])
 
 def new_post(post_title, markdown_dir):
     '''
@@ -65,17 +79,12 @@ def generate(markdown_dir,html_dir,page_dir):
         html_file=os.path.join(html_dir,file_name)+'.html'
         post_markdown=os.path.join(markdown_dir,md_file)
         
-        with open(post_markdown) as metafile:
-            meta_data=[metafile.next() for x in xrange(4)]
-
-        post_title=meta_data[1].split(':')[1].strip()
-        post_date=meta_data[3].split(':')[1].strip()
-
+        meta_info=get_meta(post_markdown)
         with open(html_poster,'w') as post:
             post.write('\n')
-            post.write('<a class="return_to_index" href="../index.html">Back to index</a>\n')
-            post.write('<h1 class="post_title">%s</h1>\n'%post_title)
-            post.write('<p class="date">%s</p>\n'%post_date)
+            post.write('<a class="return_to_index" href="../../index.html">Back</a>\n')
+            post.write('<h1 class="post_title">%s</h1>\n'%meta_info['title'])
+            post.write('<p class="date">%s</p>\n'%meta_info['date'])
             post.write('\n')
 
 
@@ -94,14 +103,46 @@ def generate(markdown_dir,html_dir,page_dir):
         subprocess.call(pandoc_cmd,shell=True)
 
 
-def update(html_dir,page_dir):
+
+def update(markdown_dir,html_dir,page_dir):
     '''
     read the html directory and the page directory
     update the post list
     update the whole site (e.g. if css has been changed)
-    '''
-    print(page_dir)
-    pass
+    ''' 
+    
+    highlight_style='pygments'
+    css_style=page_dir+'/style.css'
+    html_head=page_dir+'/header.html'
+    html_before=page_dir+'/before.html'
+    html_after=page_dir+'/after.html'
+    author='Rootuser'
+
+    post_list=os.listdir(markdown_dir)
+    index_markdown=page_dir+'/index.markdown'
+    index_html=page_dir+'/index.html'
+    with open(index_markdown,'w') as index_md:
+        for post_filename in post_list:
+            post_fpname=os.path.join(markdown_dir,post_filename)
+            meta_info=get_meta(post_fpname) 
+            index_md.write('- [%s](./blog/html/%s)'\
+                           '<span class="date">  %s</span>\n'%
+                          (meta_info['title'],
+                           os.path.splitext(post_filename)[0]+'.html',
+                           meta_info['date']))
+
+    pandoc_cmd=('pandoc -s -S --mathjax'\
+                ' --highlight-style %s'\
+                ' -c %s'
+                ' -H %s -B %s -A %s'\
+                ' -V pagetitle="Rootuser" -V author-meta="Rootuser"'\
+                ' -f markdown -t html5 -o %s %s'\
+                %(highlight_style,
+                  css_style,
+                  html_head,html_before,html_after,
+                  index_html,index_markdown))
+
+    subprocess.call(pandoc_cmd,shell=True)
 
 if __name__ == '__main__':
     parser=argparse.ArgumentParser()
