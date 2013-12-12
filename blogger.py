@@ -13,7 +13,7 @@ from datetime import date
 
 def get_dir():
     home=os.path.expanduser('~')
-    site_folder='blogtest'
+    site_folder='ghpage'
     markdown=os.path.join(home,site_folder,'blog','markdown')
     html=os.path.join(home,site_folder,'blog','html')
     page=os.path.join(home,site_folder)
@@ -66,7 +66,7 @@ def generate(markdown_dir,html_dir,page_dir):
     convert all the markdown file to html
     '''
     highlight_style='pygments'
-    css_style=page_dir+'/style.css'
+    css_style='/style.css'
     html_head=page_dir+'/header.html'
     html_before=page_dir+'/before.html'
     html_after=page_dir+'/after.html'
@@ -112,7 +112,7 @@ def update(markdown_dir,html_dir,page_dir):
     ''' 
     
     highlight_style='pygments'
-    css_style=page_dir+'/style.css'
+    css_style='/style.css'
     html_head=page_dir+'/header.html'
     html_before=page_dir+'/before.html'
     html_after=page_dir+'/after.html'
